@@ -10,7 +10,6 @@ var press = false;
 var bonusCounter = 0;
 var bonusCondition=10;
 
-
 var gravity = 7;
 var delay = 0;
 var speed = 0;
@@ -38,9 +37,6 @@ var aggronSprite = document.getElementById("aggron");
 var pokemonEgg = document.getElementById("pokemonEgg");
 var swoobatFireSprite = document.getElementById("swoobatFire");
 var skarmoryFireSprite = document.getElementById("skarmoryFire");
-var instinctImage=document.getElementById("instinct");
-var mysticImage=document.getElementById("mystic");
-var valorImage=document.getElementById("valor");
 
 
 var spaceKey = false;
@@ -48,8 +44,6 @@ var enterKey = false;
 var allShoot = [];
 var eggs = [];
 var enemies = [];
-var badgesArray=[];
-
 
 var backgroundScroll = new backgroundAnimate(0, 0, canvasW, canvasH);
 var backgroundScroll2 = new backgroundAnimate(canvasW, 0, canvasW, canvasH);
@@ -58,9 +52,6 @@ var playerCharacter = new character();
 
 var eggX = 50;
 var eggY = 30;
-
-var badgeX=canvasW-300;
-var badgeY=50;
 
 
 animation.prototype.startGame = function (character, level) {
@@ -111,13 +102,12 @@ function isCollidingWithPlayer(player, enemy) {
   var x_axis = Math.abs(player.dirX - enemy.dirX) <= Math.max(player.width, enemy.width);
   var y_axis = Math.abs(player.dirY - enemy.dirY) <= Math.max(player.height, enemy.height);
 
-
-
   return x_axis && y_axis;
 }
 
 function isCollidingWithFire(fire, enemy) {
-  var x_axis = Math.abs(fire.fireMove - enemy.dirX) <= Math.max(fire.fireWidth, enemy.width - 50);
+
+  var x_axis = Math.abs(fire.fireMove - enemy.dirX) <= Math.max(fire.fireWidth, enemy.width );
   var y_axis = Math.abs(fire.fireYpos - enemy.dirY) <= Math.max(fire.fireHeigth, enemy.height - 50);
 
   return x_axis && y_axis;
@@ -148,7 +138,7 @@ function drawImage(key) {
   }
 
 
-  if (bonusCounter > bonusCondition) {    
+  if (bonusCounter > bonusCondition) {
     bonusCounter = 0;
     eggs.push(new lives(eggX, eggY))
     eggX += 50;
@@ -157,6 +147,7 @@ function drawImage(key) {
     playerCharacter.characterDie();
   } else if (hp < 0) {
     eggs.splice(eggs.length - 1, 1);
+    eggX -= 50;
     hp = 100;
   }
   eggs.forEach(function (lives) {
@@ -193,13 +184,9 @@ function drawImage(key) {
   
   setRandomEnemy();
   drawingEnemies();
-  badgesArray.forEach(function(badge)      ////////////////////////////////
-  {
-    badge.draw();
-  })
-
-  console.log(badgesArray);
   
+
+
 
 
   allShoot = allShoot.filter(function (fired) {
@@ -283,7 +270,7 @@ function gameOver() {
   context.font = "50pt Calibri";
   context.fillStyle = "white";
   context.fillText("Game Over", (canvasW / 2) - 140, canvasH / 2);
-  context.fillText("Press Enter to Try Again", (canvasW / 2) - 320, (canvasH / 2) + 60);
+  context.fillText("Press Enter to Try Again", (canvasW / 2) - 310, (canvasH / 2) + 60);
 
 }
 
@@ -293,63 +280,25 @@ function playerWin() {
   context.clearRect(0, 0, canvasW, canvasH);
   backgroundScroll.draw();
   backgroundScroll2.draw();
-  drawLargeBadges();
-  drawSmallBadges();
-  if(badgesArray.length>3){
-    drawCongrats();
-  }
-  else{
+
   context.font = "50pt Calibri";
   context.fillStyle = "white";
-  context.fillText("Winner", (canvasW / 2) - 80, 60);
-  context.fillText("Press Enter to next level", (canvasW / 2) - 310, (canvasH-90) );
+  context.fillText("Winner", (canvasW / 2) - 80, canvasH / 2);
+  context.fillText("Press Enter to next level", (canvasW / 2) - 310, (canvasH / 2) + 60);
   if (enterKey) {
     playAgain();
   }
 }
-}
-
-function drawCongrats(){
-  context.font = "50pt Calibri";
-  context.fillStyle = "white";
-  context.fillText("congratulation! you won the three badges", (canvasW / 2) - 575, 70);
-  context.fillText("Press Enter to play again", (canvasW / 2) - 325, (canvasH-90) );
-}
-
-function drawSmallBadges() {
-  console.log("dirx   = "+badgeX+" diry = "+badgeY);
-  
-  badgesArray.push(new badges(badgeX,badgeY,1,level))
-  badgeX+=50;
-  
-}
-
-function drawLargeBadges(){
-  newbadges=new badges(((canvasW/2)-180),((canvasH/2)-220),10,level);
-  newbadges.draw();
-}
 
 function playAgain() {
   if (enterKey == true && (playerCharacter.active == false) || playerCharacter.status) {
-    
-    
-    
-      char ++;
-      if(char==4)
-        char=1;
 
+    char = ((char+1)%3);
     level++;
-    if(level>3){
-      level=3;
-    }
     startGame(char, level);
   }
 }
 var mainInterval;
-
-function drawBadges(){
-
-}
 
 window.addEventListener("keypress", checkKey);
 
@@ -367,7 +316,7 @@ function checkKey(key) {
 
     enterKey = true;
 
-    if (!playerCharacter.active||badgesArray.length>3)
+    if (!playerCharacter.active)
       window.location.reload();
     else if (playerCharacter.status) {
       playAgain();
